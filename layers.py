@@ -1,11 +1,11 @@
 import numpy as np
-
+from utils import *
 
 class Model():
 
     def __init__(self, layers):
         self.layers = layers
-        
+        self.learning_rate = 0.1
 
         prev_output_size = None
         for layer in self.layers:
@@ -39,11 +39,26 @@ class Model():
         return (self.get_output() - target) * 2
 
     def backward(self, target):
-        part_deriv = self.cost_derivative(target)
+
+        part_deriv = self.cost_derivative(target).T
 
         for idx in range(len(self.layers)):
-            pass
+            layer = self.layers[len(self.layers) - 1 - idx]
+            if layer._is_input:
+                continue
+            
+            dact = map_activation(layer.get_activations(), get_derivative_fn(layer.activation)).T
 
+            # update weights & biases
+
+            new_part_deriv = layer.weights.dot(part_deriv)
+
+            # TODO
+            next_layer = self.layers[len(self.layers) - 2 - idx]
+            layer.weights = layer.weights - (self.learning_rate * (part_deriv * dact).dot(next_layer.get_activations())).T
+            layer.biases = layer.biases - (self.learning_rate * part_deriv).T
+            
+            part_deriv = new_part_deriv
 
 
     def set_input(self, input):
@@ -62,20 +77,17 @@ class Dense():
         self.size = size
         self.activation = activation
 
+        # state that stores the last output from the forward step of this layer
+        self.activations = []
+
 
     def forward(self, input):
         if self._is_input:
+            self.activations = input
             return input
         
-        return self.map_activation(input.dot(self.weights) + self.biases)
-        
-    
-    def map_activation(self, xs):
-        # TODO optimize
-        for i in range(len(xs)):
-            for j in range(len(xs[i])):
-                xs[i][j] = self.activation(xs[i][j])
-        return xs        
+        self.activations = map_activation(input.dot(self.weights) + self.biases, self.activation)
+        return self.activations
 
 
     def init_weights_and_biases(self, input_size):
@@ -85,7 +97,8 @@ class Dense():
             self.weights = np.random.rand(input_size, self.size) - 0.5
             self.biases = np.random.rand(1, self.size) - 0.5
 
-
+    def get_activations(self):
+        return self.activations
     
 
 

@@ -34,3 +34,10 @@ model.set_input(train_data)
 model.forward()
 print("output= ", model.get_output())
 print("cost = ", model.cost(train_labels))
+
+
+for i in range(1000):
+    model.set_input(train_data)
+    model.forward()
+    print("cost = ", model.cost(train_labels))
+    model.backward(train_labels)

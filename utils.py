@@ -16,3 +16,17 @@ def relu_derivative(x):
     if x <= 0.0:
         return 0.0
     return 1.0
+
+
+def map_activation(xs, activation):
+        # TODO optimize
+        for i in range(len(xs)):
+            for j in range(len(xs[i])):
+                xs[i][j] = activation(xs[i][j])
+        return xs
+
+def get_derivative_fn(fn):
+    if fn == sigmoid:
+        return sigmoid_derivative
+    elif fn == relu:
+        return relu_derivative
