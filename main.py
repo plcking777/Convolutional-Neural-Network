@@ -1,5 +1,6 @@
 import numpy as np
 from layers import *
+from utils import *
 
 
 
@@ -22,9 +23,9 @@ train_labels = np.array([
 print("shape:  ", train_data.shape)
 
 model = Model([
-    Dense(2),
-    Dense(5),
-    Dense(1),
+    Dense(2, None),
+    Dense(5, relu),
+    Dense(1, sigmoid),
 ])
 
 
@@ -32,3 +33,4 @@ model = Model([
 model.set_input(train_data)
 model.forward()
 print("output= ", model.get_output())
+print("cost = ", model.cost(train_labels))
