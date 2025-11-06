@@ -10,7 +10,7 @@ class Model():
         prev_output_size = None
         for layer in self.layers:
             layer.init_weights_and_biases(prev_output_size)
-            prev_output_size = layer.size
+            prev_output_size = layer.get_output_shape()  # TODO suport 2D size
 
 
 
@@ -47,7 +47,7 @@ class Model():
             if layer._is_input:
                 continue
             
-            dact = map_activation(layer.get_activations(), get_derivative_fn(layer.activation)).T
+            dact = get_derivative_fn(layer.activation)(layer.get_activations()).T
 
             # update weights & biases
 
@@ -86,7 +86,7 @@ class Dense():
             self.activations = input
             return input
         
-        self.activations = map_activation(input.dot(self.weights) + self.biases, self.activation)
+        self.activations = self.activation(input.dot(self.weights) + self.biases)
         return self.activations
 
 
@@ -100,12 +100,33 @@ class Dense():
     def get_activations(self):
         return self.activations
     
+    def get_output_shape(self):
+        return self.size
+    
 
+class Flatten():
+    def __init__(self):
+        pass
+    
+    def forward(self, input):
+        return input.flatten()
+
+    def init_weights_and_biases(self, _):
+        pass
+
+    def get_output_shape(self):
+        pass #TODO
 
 class Convolution():
     
-    def __init__(self, kernel_count, kernel_shape):
+    def __init__(self, kernel_count, kernel_shape, stride, input_shape):
         self.kernel_count = kernel_count
         self.kernel_shape = kernel_shape
+        self.stride = stride
+        self.input_shape = input_shape
     
+    def init_weights_and_biases(self, input_size):
+        pass
 
+    def get_output_shape(self):
+        pass #TODO
