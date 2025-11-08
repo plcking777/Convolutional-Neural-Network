@@ -148,22 +148,24 @@ class Convolution():
         for data in input:
             output_convolutions = []
             for input_convolution in data:
-                #shape = 28x28
-                row = 0
-                col = 0
-
-                conv = np.zeros(conv_shape)
-                for conv_row in range(conv_shape[0]):
-                    for conv_col in range(conv_shape[1]):
-                        conv_value = np.sum(input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]].dot(self.kernel_weights))
-                        conv[conv_row][conv_col] = conv_value
-                        col += self.stride
+                for current_kernel in range(self.kernel_count):
+                    #shape = 28x28
+                    row = 0
                     col = 0
-                    row += self.stride
-                output_convolutions.append(conv)
+
+                    conv = np.zeros(conv_shape)
+                    for conv_row in range(conv_shape[0]):
+                        for conv_col in range(conv_shape[1]):
+                            conv_value = np.sum(input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]].dot(self.kernel_weights))
+                            conv[conv_row][conv_col] = conv_value
+                            col += self.stride
+                        col = 0
+                        row += self.stride
+                    output_convolutions.append(conv)
             out.append(output_convolutions)
 
         out = np.array(out)
+        print("out  - ", out.shape)
         return out
 
     
