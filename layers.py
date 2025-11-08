@@ -9,8 +9,11 @@ class Model():
 
         prev_output_size = None
         for layer in self.layers:
-            layer.init_weights_and_biases(prev_output_size)
-            prev_output_size = layer.get_output_shape()  # TODO suport 2D size
+            if isinstance(layer, Dense):
+                layer.init_weights_and_biases(prev_output_size)
+                prev_output_size = layer.get_output_shape()
+            elif isinstance(layer, Convolution):
+                layer.init_weights_and_biases()
 
 
 
@@ -22,8 +25,7 @@ class Model():
         for idx in range(len(self.layers)):
             layer = self.layers[idx]
 
-            if isinstance(layer, Dense):
-                current_output = layer.forward(prev_output)
+            current_output = layer.forward(prev_output)
 
             prev_output = current_output
     
@@ -31,7 +33,6 @@ class Model():
 
 
     def cost(self, target):
-        #TODO maybe average
         diff = self.get_output() - target
         return diff ** 2
 
@@ -124,9 +125,45 @@ class Convolution():
         self.kernel_shape = kernel_shape
         self.stride = stride
         self.input_shape = input_shape
+
+        self.kernel_weights = []
     
-    def init_weights_and_biases(self, input_size):
-        pass
+    def init_weights_and_biases(self):
+        self.kernel_weights = np.random.rand(self.kernel_count, self.kernel_shape[0], self.kernel_shape[1])
 
     def get_output_shape(self):
         pass #TODO
+
+    def get_convolution_shape(self):
+        def relu(x):
+            return max(0.0, x)
+        
+        return (relu(self.input_shape[0] - self.kernel_shape[0]) // self.stride + 1, relu(self.input_shape[1] - self.kernel_shape[1]) // self.stride + 1)
+        
+
+    def forward(self, input):
+
+        conv_shape = self.get_convolution_shape()
+        out = []
+        for data in input:
+            output_convolutions = []
+            for input_convolution in data:
+                #shape = 28x28
+                row = 0
+                col = 0
+
+                conv = np.zeros(conv_shape)
+                for conv_row in range(conv_shape[0]):
+                    for conv_col in range(conv_shape[1]):
+                        conv_value = np.sum(input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]].dot(self.kernel_weights))
+                        conv[conv_row][conv_col] = conv_value
+                        col += self.stride
+                    col = 0
+                    row += self.stride
+                output_convolutions.append(conv)
+            out.append(output_convolutions)
+
+        out = np.array(out)
+        return out
+
+    
