@@ -26,3 +26,10 @@ def get_derivative_fn(fn):
         return sigmoid_derivative
     elif fn == relu:
         return relu_derivative
+
+
+
+def to_one_hot(n, max):
+    out = np.zeros(max)
+    out[n] = 1.0
+    return out

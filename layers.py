@@ -26,7 +26,6 @@ class Model():
             layer = self.layers[idx]
 
             current_output = layer.forward(prev_output)
-
             prev_output = current_output
     
         self.model_output = prev_output
@@ -110,7 +109,7 @@ class Flatten():
         pass
     
     def forward(self, input):
-        return input.flatten()
+        return np.array([xs.flatten() for xs in input])
 
     def init_weights_and_biases(self, _):
         pass
@@ -165,7 +164,6 @@ class Convolution():
             out.append(output_convolutions)
 
         out = np.array(out)
-        print("out  - ", out.shape)
         return out
 
     
