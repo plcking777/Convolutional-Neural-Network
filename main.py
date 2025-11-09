@@ -8,7 +8,7 @@ df = pd.read_csv("data/mnist-small.csv")
 
 
 train_data = np.array(df).T[1:].T  # pixels (removed the labels)
-train_labels = df.label
+train_labels = np.array([to_one_hot(label, 10) for label in df.label])
 
 
 
@@ -31,7 +31,7 @@ model = Model([
 model.set_input(train_data)
 model.forward()
 print("output= ", model.get_output())
-print("cost = ", model.cost(to_one_hot(train_labels, 10)))
+print("cost = ", model.cost(train_labels))
 """
 
 for i in range(1000):
