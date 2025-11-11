@@ -18,7 +18,13 @@ def relu_derivative(xss):
     return xss > 0.0
 
 def softmax(xs):
-    return np.exp(xs) / np.sum(np.exp(xs))
+    x = np.exp(xs)
+    y = np.sum(np.exp(xs))
+    return x / y
+
+
+def no_activation(xs):
+    return np.ones(xs.shape)
 
 
 def get_derivative_fn(fn):
@@ -26,6 +32,7 @@ def get_derivative_fn(fn):
         return sigmoid_derivative
     elif fn == relu:
         return relu_derivative
+    return no_activation
 
 
 

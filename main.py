@@ -23,20 +23,15 @@ model = Model([
     Convolution(1, (3, 3), 1, (28, 28)), # {data_count}x{prev_kernel_count}x28x28 -> convolution size {data_count}x{kernel_count * prev_kernel_count}x26x26
     Flatten(), # {data_count}x{kernel_count}x26x26 -> {data_count}x676
     Dense(676, None),
-    Dense(256, relu),
+    Dense(10, relu),
     Dense(10, softmax),
 ])
 
 
-model.set_input(train_data)
-model.forward()
-print("output= ", model.get_output())
-print("cost = ", model.cost(train_labels))
-"""
 
 for i in range(1000):
     model.set_input(train_data)
     model.forward()
-    print("cost = ", np.sum(model.cost(train_labels)))
+    cost = np.sum(model.cost(train_labels))
+    print("cost = ", cost)
     model.backward(train_labels)
-"""

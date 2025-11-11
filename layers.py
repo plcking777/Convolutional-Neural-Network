@@ -5,7 +5,7 @@ class Model():
 
     def __init__(self, layers):
         self.layers = layers
-        self.learning_rate = 0.1
+        self.learning_rate = 0.01
 
         prev_output_size = None
         for layer in self.layers:
@@ -21,7 +21,6 @@ class Model():
     def forward(self):
         
         prev_output = self.model_input
-
         for idx in range(len(self.layers)):
             layer = self.layers[idx]
 
@@ -44,21 +43,27 @@ class Model():
 
         for idx in range(len(self.layers)):
             layer = self.layers[len(self.layers) - 1 - idx]
-            if layer._is_input:
+
+            if isinstance(layer, Flatten):
                 continue
-            
-            dact = get_derivative_fn(layer.activation)(layer.get_activations()).T
+            elif isinstance(layer, Convolution):
+                pass
+            elif isinstance(layer, Dense):
+                if layer._is_input:
+                    continue
+                
+                dact = get_derivative_fn(layer.activation)(layer.get_activations()).T
 
-            # update weights & biases
+                # update weights & biases
 
-            new_part_deriv = layer.weights.dot(part_deriv)
+                new_part_deriv = layer.weights.dot(part_deriv)
 
-            # TODO
-            next_layer = self.layers[len(self.layers) - 2 - idx]
-            layer.weights = layer.weights - (self.learning_rate * (part_deriv * dact).dot(next_layer.get_activations())).T
-            layer.biases = layer.biases - (self.learning_rate * part_deriv).T
-            
-            part_deriv = new_part_deriv
+                # TODO
+                next_layer = self.layers[len(self.layers) - 2 - idx]
+
+                layer.weights = layer.weights - (self.learning_rate * (part_deriv * dact).dot(next_layer.get_activations())).T
+                layer.biases = layer.biases - (self.learning_rate * part_deriv).T
+                part_deriv = new_part_deriv
 
 
     def set_input(self, input):
@@ -66,6 +71,18 @@ class Model():
 
     def get_output(self):
         return self.model_output
+    
+    def print_state(self):
+        for layer in self.layers:
+            if isinstance(layer, Dense):
+                print(" --- LAYER ---")
+                print("\nWEIGHTS:")
+                print(layer.weights)
+                print("\n\nBIASES:")
+                print(layer.biases)
+                print("\n\nACTIVATION:")
+                print(layer.activations)
+                print("\n-------------------------\n\n")
 
 
 class Dense():
