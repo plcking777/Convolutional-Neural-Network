@@ -22,6 +22,11 @@ def softmax(xs):
     y = np.sum(np.exp(xs))
     return x / y
 
+def stable_softmax(xs):
+    xs = xs - np.max(xs, axis=-1, keepdims=True)
+    exp_xs = np.exp(xs)
+    return exp_xs / np.sum(exp_xs, axis=-1, keepdims=True)
+
 
 def no_activation(xs):
     return np.ones(xs.shape)

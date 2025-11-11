@@ -24,7 +24,7 @@ model = Model([
     Flatten(), # {data_count}x{kernel_count}x26x26 -> {data_count}x676
     Dense(676, None),
     Dense(10, relu),
-    Dense(10, softmax),
+    Dense(10, stable_softmax),
 ])
 
 
@@ -35,3 +35,7 @@ for i in range(1000):
     cost = np.sum(model.cost(train_labels))
     print("cost = ", cost)
     model.backward(train_labels)
+
+
+print("OUT: ", model.get_output())
+print("LABEL: ", train_labels)
