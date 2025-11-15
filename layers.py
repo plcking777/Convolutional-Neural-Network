@@ -38,32 +38,17 @@ class Model():
         return (self.get_output() - target) * 2
 
     def backward(self, target):
-
+        
         part_deriv = self.cost_derivative(target).T
-
         for idx in range(len(self.layers)):
             layer = self.layers[len(self.layers) - 1 - idx]
-
-            if isinstance(layer, Flatten):
-                continue
-            elif isinstance(layer, Convolution):
-                pass
-            elif isinstance(layer, Dense):
+            
+            if isinstance(layer, Dense):
                 if layer._is_input:
                     continue
-                
-                dact = get_derivative_fn(layer.activation)(layer.get_activations()).T
-
-                # update weights & biases
-
-                new_part_deriv = layer.weights.dot(part_deriv)
-
-                # TODO
                 next_layer = self.layers[len(self.layers) - 2 - idx]
+                part_deriv = layer.backward(part_deriv, next_layer, self.learning_rate)
 
-                layer.weights = layer.weights - (self.learning_rate * (part_deriv * dact).dot(next_layer.get_activations())).T
-                layer.biases = layer.biases - (self.learning_rate * part_deriv).T
-                part_deriv = new_part_deriv
 
 
     def set_input(self, input):
@@ -106,6 +91,15 @@ class Dense():
         self.activations = self.activation(input.dot(self.weights) + self.biases)
         return self.activations
 
+    def backward(self, part_deriv, next_layer, learning_rate):
+        dact = get_derivative_fn(self.activation)(self.get_activations()).T
+
+        # update weights & biases
+        new_part_deriv = self.weights.dot(part_deriv)
+
+        self.weights = self.weights - (learning_rate * (part_deriv * dact).dot(next_layer.get_activations())).T
+        self.biases = self.biases - (learning_rate * part_deriv).T
+        return new_part_deriv
 
     def init_weights_and_biases(self, input_size):
         if input_size == None:
