@@ -48,6 +48,10 @@ class Model():
                     continue
                 next_layer = self.layers[len(self.layers) - 2 - idx]
                 part_deriv = layer.backward(part_deriv, next_layer, self.learning_rate)
+            
+            elif isinstance(layer, Convolution):
+                next_layer = self.layers[len(self.layers) - 2 - idx]
+                part_deriv = layer.backward(part_deriv, next_layer, self.learning_rate)
 
 
 
@@ -67,6 +71,13 @@ class Model():
                 print(layer.biases)
                 print("\n\nACTIVATION:")
                 print(layer.activations)
+                print("\n-------------------------\n\n")
+            elif isinstance(layer, Convolution):
+                print(" --- Convolution LAYER ---")
+                for i in range(layer.kernel_count):
+                    print(f"KERNEL {i}")
+                    print(layer.kernel_weights[i])
+                    print(" --- ")
                 print("\n-------------------------\n\n")
 
 
@@ -136,6 +147,8 @@ class Convolution():
         self.stride = stride
         self.input_shape = input_shape
 
+        self.input = None
+
         self.kernel_weights = []
     
     def init_weights_and_biases(self):
@@ -153,6 +166,8 @@ class Convolution():
 
     def forward(self, input):
 
+        self.input = input
+
         conv_shape = self.get_convolution_shape()
         out = []
         for data in input:
@@ -166,7 +181,7 @@ class Convolution():
                     conv = np.zeros(conv_shape)
                     for conv_row in range(conv_shape[0]):
                         for conv_col in range(conv_shape[1]):
-                            conv_value = np.sum(input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]].dot(self.kernel_weights))
+                            conv_value = np.sum(input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]].dot(self.kernel_weights[current_kernel]))
                             conv[conv_row][conv_col] = conv_value
                             col += self.stride
                         col = 0
@@ -177,4 +192,32 @@ class Convolution():
         out = np.array(out)
         return out
 
+
+    def backward(self, part_deriv, next_layer, learning_rate):
+        conv_shape = self.get_convolution_shape()
+        unflattened_part_deriv = part_deriv.reshape(conv_shape)
+
+        for data in self.input:
+            for input_convolution in data:
+                for current_kernel in range(self.kernel_count):
+                    #shape = 28x28
+
+                    out = []
+                    row = 0
+                    col = 0
+                    for conv_row in range(conv_shape[0]):
+                        for conv_col in range(conv_shape[1]):
+                            image_filtered = input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]]
+                            part_part_deriv = unflattened_part_deriv[conv_row, conv_col]
+
+                            if len(out) == 0:
+                                out = image_filtered.dot(part_part_deriv)
+                            else:
+                                out += image_filtered.dot(part_part_deriv)
+                            
+                            col += self.stride
+                        col = 0
+                        row += self.stride
+                    
+                    self.kernel_weights[current_kernel] = self.kernel_weights[current_kernel] + learning_rate * out
     

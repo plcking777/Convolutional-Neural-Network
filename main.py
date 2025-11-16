@@ -15,8 +15,8 @@ train_labels = np.array([to_one_hot(label, 10) for label in df.label])
 train_data = np.array([[np.reshape(entry, (28, 28))] for entry in train_data]) / 255.0  # restore structure of the image
 
 
-#train_data = np.array([train_data[0]])
-#train_labels = np.array([train_labels[0]])
+train_data = np.array([train_data[0]])
+train_labels = np.array([train_labels[0]])
 
 
 print("shape:  ", train_data.shape)
