@@ -45,3 +45,6 @@ def to_one_hot(n, max):
     out = np.zeros(max)
     out[n] = 1.0
     return out
+
+def apply_norm_clip(xs, clip):
+    return (xs / np.linalg.norm(xs)) * clip
