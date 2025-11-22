@@ -2,7 +2,7 @@ import numpy as np
 from layers import *
 from utils import *
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("data/mnist-small.csv")
 
@@ -30,14 +30,21 @@ model = Model([
 ])
 
 
+graph_x = []
+graph_y = []
 
-for i in range(1000):
+
+for i in range(500):
     model.set_input(train_data)
     model.forward()
     cost = np.sum(model.cost(train_labels))
+    graph_x.append(i)
+    graph_y.append(cost)
     print("cost = ", cost)
     model.backward(train_labels)
 
 
 print("OUT: ", model.get_output())
 print("LABEL: ", train_labels)
+plt.plot(graph_x, graph_y)
+plt.show()
