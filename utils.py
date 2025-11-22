@@ -48,3 +48,11 @@ def to_one_hot(n, max):
 
 def apply_norm_clip(xs, clip):
     return (xs / np.linalg.norm(xs)) * clip
+
+
+def select_random_mini_batch(data, labels, size):
+    random_idxs = np.random.randint(0, len(data), size)
+    batch_data = np.array([data[idx] for idx in random_idxs])
+    batch_labels = np.array([labels[idx] for idx in random_idxs])
+
+    return batch_data, batch_labels
