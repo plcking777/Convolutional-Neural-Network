@@ -3,7 +3,6 @@ import numpy as np
 
 
 
-# TODO
 def sigmoid(xs):
     return 1.0 / (1.0 + np.exp(-xs))
 
@@ -46,8 +45,15 @@ def to_one_hot(n, max):
     out[n] = 1.0
     return out
 
+
+def apply_clip(xs, clip):
+    return np.clip(xs, -clip, clip)
+
 def apply_norm_clip(xs, clip):
-    return (xs / np.linalg.norm(xs)) * clip
+    mag = np.linalg.norm(xs)
+    if mag == 0 or np.isnan(mag):
+        return apply_clip(xs, clip)
+    return (xs / mag) * clip
 
 
 def select_random_mini_batch(data, labels, size):

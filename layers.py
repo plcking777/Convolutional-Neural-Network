@@ -5,8 +5,8 @@ class Model():
 
     def __init__(self, layers):
         self.layers = layers
-        self.learning_rate = 0.0001
-        self.clip_size = 100
+        self.learning_rate = 0.001
+        self.clip_size = 1
 
         prev_output_size = None
         for layer in self.layers:
@@ -205,12 +205,13 @@ class Convolution():
         conv_shape = self.get_convolution_shape()
         unflattened_part_deriv = np.array([xs.reshape(conv_shape) for xs in part_deriv.T])
 
+
         for data in self.input:
             for input_convolution in data:
                 for current_kernel in range(self.kernel_count):
                     #shape = 28x28
 
-                    out = np.zeros(self.kernel_shape)
+                    weight_derivs = np.zeros(self.kernel_shape)
                     row = 0
                     col = 0
                     for conv_row in range(conv_shape[0]):
@@ -218,12 +219,12 @@ class Convolution():
                             image_filtered = input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]]
                             part_part_deriv = np.average(unflattened_part_deriv[:, conv_row, conv_col])
 
-                            out += image_filtered.dot(part_part_deriv)
+                            weight_derivs += image_filtered * part_part_deriv
                             
                             col += self.stride
                         col = 0
                         row += self.stride
                     
                     
-                    self.kernel_weights[current_kernel] = self.kernel_weights[current_kernel] + learning_rate * apply_norm_clip(out, clip_size)
+                    self.kernel_weights[current_kernel] = self.kernel_weights[current_kernel] + learning_rate * apply_norm_clip(weight_derivs, clip_size)
     
