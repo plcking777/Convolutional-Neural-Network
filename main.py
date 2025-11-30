@@ -36,11 +36,11 @@ for i in range(10000):
 
     model.set_input(batch_data)
     model.forward()
-    cost = np.sum(model.cost(batch_label))
+    loss = np.sum(model.loss(batch_label))
     if i % 500 == 0:
         graph_x.append(i)
-        graph_y.append(cost)
-        print("cost = ", cost)
+        graph_y.append(loss)
+        print("loss = ", loss)
     model.backward(batch_label)
 
 

@@ -31,16 +31,16 @@ class Model():
         self.model_output = prev_output
 
 
-    def cost(self, target):
+    def loss(self, target):
         diff = self.get_output() - target
-        return diff ** 2
+        return abs(diff)
 
-    def cost_derivative(self, target):
-        return (self.get_output() - target) * 2
+    def loss_derivative(self, target):
+        return (self.get_output() - target)
 
     def backward(self, target):
         
-        part_deriv = self.cost_derivative(target).T
+        part_deriv = self.loss_derivative(target).T
         for idx in range(len(self.layers)):
             layer = self.layers[len(self.layers) - 1 - idx]
             
