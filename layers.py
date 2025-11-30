@@ -203,8 +203,7 @@ class Convolution():
 
     def backward(self, part_deriv, next_layer, learning_rate, clip_size):
         conv_shape = self.get_convolution_shape()
-        unflattened_part_deriv = np.array([xs.reshape(conv_shape) for xs in part_deriv.T])
-
+        unflattened_part_deriv = part_deriv.T.flatten().reshape((len(self.input), self.kernel_count, conv_shape[0], conv_shape[1]))
 
         for data in self.input:
             for input_convolution in data:
@@ -217,7 +216,7 @@ class Convolution():
                     for conv_row in range(conv_shape[0]):
                         for conv_col in range(conv_shape[1]):
                             image_filtered = input_convolution[row:row + self.kernel_shape[0], col:col + self.kernel_shape[1]]
-                            part_part_deriv = np.average(unflattened_part_deriv[:, conv_row, conv_col])
+                            part_part_deriv = np.average(unflattened_part_deriv[:, :, conv_row, conv_col])
 
                             weight_derivs += image_filtered * part_part_deriv
                             
